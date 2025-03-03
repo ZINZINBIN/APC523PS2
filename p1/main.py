@@ -206,7 +206,7 @@ if __name__ == "__main__":
     fig.savefig("./p1_1.png")
 
     # Problem (2)
-    p_list = [i for i in range(1,257)]
+    p_list = [2 ** i for i in range(0, 9)]
 
     l2_err_a_list = []
     l2_err_b_list = []
