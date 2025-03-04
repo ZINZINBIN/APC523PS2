@@ -25,3 +25,8 @@ Github repository for assignment 2 in APC523. Problem 3 is noted by both handwri
 </div>
 
 ### Problem 3. Iterative Methods
+<div>
+    <p float = 'left'>
+        <img src="./p3.png"  width="500" height="360">
+    </p>
+</div>
