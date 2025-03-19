@@ -26,6 +26,10 @@ def compute_iteration_error(x_pred:np.ndarray, x_target:np.ndarray):
     err = np.max(np.abs(x_pred - x_target)).item()
     return err
 
+def compute_fro_norm(A:np.ndarray, x:np.ndarray, lamda:float):
+    err = np.linalg.norm(A@x - lamda * x, ord = 'fro', keepdims = False)
+    return err
+
 def generate_eigen_vec(m:int, N:int):
     v = np.array([np.exp(-1j * 2 * np.pi * i * m / N) for i in range(0,N)]).reshape(-1,1)
     return v
@@ -62,12 +66,17 @@ if __name__ == "__main__":
     Mv = M_inv @ b
 
     v1_err_list = []
+    v1_fro_err_list = []
 
     for n_iter in range(n_iters):
         err = compute_iteration_error(x, v1)
         v1_err_list.append(err)
+        v1_fro_err_list.append(compute_fro_norm(Ta, x, l1))
         x = G@x + Mv
 
+    v1_Jacobi = np.copy(x)
+
+    # Jacobi iteration with m = 2
     x = np.copy(x0)
     v2 = np.imag(generate_eigen_vec(m=2, N=N))
     l2 = generate_eigen_value(alpha, m=2, N=N)
@@ -75,26 +84,31 @@ if __name__ == "__main__":
     Mv = M_inv @ b
 
     v2_err_list = []
+    v2_fro_err_list = []
 
-    # Jacobi iteration with m = 2
     for n_iter in range(n_iters):
         err = compute_iteration_error(x, v2)
         v2_err_list.append(err)
+        v2_fro_err_list.append(compute_fro_norm(Ta, x, l2))
         x = G @ x + Mv
+
+    v2_Jacobi = np.copy(x)
 
     x_iters = np.array([i + 1 for i in range(n_iters)])
     v1_err = np.array(v1_err_list)
     v2_err = np.array(v2_err_list)
-    
+
     p_v1 = np.polyfit(x_iters, np.log(v1_err), deg = 1)
     p_v2 = np.polyfit(x_iters, np.log(v2_err), deg = 1)
-    
+
     rho_v1_observed = np.exp(p_v1[0])
     rho_v2_observed = np.exp(p_v2[0])
-    
+
+    # log(eps) / log(rho) = n
     print("Spectral radius observed in v1:",rho_v1_observed)
     print("Spectral radius observed in v2:",rho_v2_observed)
 
+    # Plot Max error for problem (1)
     fig, axes = plt.subplots(1,2,figsize = (8,4))
     axes = axes.ravel()
 
@@ -110,3 +124,58 @@ if __name__ == "__main__":
 
     fig.tight_layout()
     fig.savefig("./p3.png")
+
+    # Plot Fro norm for checking Av = lv
+    fig, axes = plt.subplots(1, 2, figsize=(8, 4))
+    axes = axes.ravel()
+
+    axes[0].plot(x_iters, v1_fro_err_list, "r")
+    axes[0].set_xlabel("Iteration")
+    axes[0].set_ylabel("$|T_2 v_m - \lambda_m v_m|_F$")
+    axes[0].set_title(r"Jacobi iteration with eigenvector m = 1")
+
+    axes[1].plot(x_iters, v2_fro_err_list, "r")
+    axes[1].set_xlabel("Iteration")
+    axes[1].set_ylabel("$|T_2 v_m - \lambda_m v_m|_F$")
+    axes[1].set_title(r"Jacobi iteration with eigenvector m = 2")
+
+    fig.tight_layout()
+    fig.savefig("./p3_fro.png")
+
+    # Arbitrary vector y to verify its convergence
+    y = 0
+    a = np.zeros(N)
+    y_err_list = []
+    y_fro_err_list = []
+
+    for i in range(N):
+        a[i] = np.random.rand(1)
+        y += np.imag(generate_eigen_vec(m=i, N=N)) * a[i]
+
+    # Use Jacobi iteration to solve Tx = y
+    b = y
+    Mv = M_inv @ b
+
+    x = np.copy(x0)
+    for n_iter in range(n_iters):
+        err = compute_iteration_error(x, y)
+        fro_err = np.linalg.norm(Ta@x-y, ord = 'fro', keepdims = False)
+        y_err_list.append(err)
+        y_fro_err_list.append(fro_err)
+        x = G @ x + Mv
+
+    fig, axes = plt.subplots(1, 2, figsize=(8, 4))
+    axes = axes.ravel()
+
+    axes[0].plot(x_iters, y_err_list, "r")
+    axes[0].set_xlabel("Iteration")
+    axes[0].set_ylabel("Max error")
+    axes[0].set_title(r"Jacobi iteration with $y$")
+
+    axes[1].plot(x_iters, y_fro_err_list, "r")
+    axes[1].set_xlabel("Iteration")
+    axes[1].set_ylabel("$|T_2 x - y|_F$")
+    axes[1].set_title(r"Jacobi iteration with $y$")
+
+    fig.tight_layout()
+    fig.savefig("./p3_y.png")
