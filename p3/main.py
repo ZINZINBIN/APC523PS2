@@ -85,6 +85,15 @@ if __name__ == "__main__":
     x_iters = np.array([i + 1 for i in range(n_iters)])
     v1_err = np.array(v1_err_list)
     v2_err = np.array(v2_err_list)
+    
+    p_v1 = np.polyfit(x_iters, np.log(v1_err), deg = 1)
+    p_v2 = np.polyfit(x_iters, np.log(v2_err), deg = 1)
+    
+    rho_v1_observed = np.exp(p_v1[0])
+    rho_v2_observed = np.exp(p_v2[0])
+    
+    print("Spectral radius observed in v1:",rho_v1_observed)
+    print("Spectral radius observed in v2:",rho_v2_observed)
 
     fig, axes = plt.subplots(1,2,figsize = (8,4))
     axes = axes.ravel()
