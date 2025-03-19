@@ -4,12 +4,23 @@
 - Problem 3 is noted by both handwriting and code. The handwriting file is uploaded as "HW_02_prob_3_abc.pdf", and it contains 3-(a), 3-(b), and 3-(c).
 
 ## Problem 1. Polynomial Interpolation
-Problem: Implement a method using Lagrange polynomial interpolation of degree pusing for the p+ 1 node points the roots of the degree p+ 1 Chebyshev polynomial. Write a function that takes as input f(x) on the interval [-1,1] and interpolates it to g(x). Compute the L2 error and the maximum error of your interpolation using a fine grid with N = 1000 points uniformly distributed in the domain.
-1. Plot the actual function f(x) and its approximation g(x) as function of xon the fine grid. Do this for each function above using 3 different Lagrange polynomial degrees p= {10,20,40}. Mark the p+ 1 Chebyshev nodes on the plot of g(x).
-2. Plot the L2 and maximum errors as a function of p∈[1,256] using a log-log scale. Label the observed power law dependencies using dashed lines. Interpret the results.      
-3. (Bonus) Try and go up to p = 1024. You will need to take advantage of the property that the Lagrange polynomials based on Chebyshev nodes can be written using Chebyshev polynomials, which are easier and faster to compute.
-
 ### Problem 1.1
+The chebyshev node points are generated for each function from (a) to (c) with different p mentioned in problem 1. The code is written at main.py in p1 folder. The interpolation error computed by L2 and max error is given as table below.
+
+|  $f(x)$       |      p        | L2 error      | Max error     |
+| ------------- | ------------- | ------------- | ------------- |
+|$1/(1+25 x^2)$ |     10        |     0.057     |     0.109     |
+|abs($x$)       |     10        |     0.024     |     0.055     |
+|$H(x-0.25)$    |     10        |     0.193     |     0.906     |
+|$1/(1+25 x^2)$ |     20        |     0.008     |     0.015     |
+|abs($x$)       |     20        |     0.009     |     0.028     |
+|$H(x-0.25)$    |     20        |     0.103     |     0.708     |
+|$1/(1+25 x^2)$ |     40        |     0.000     |     0.000     |
+|abs($x$)       |     40        |     0.003     |     0.015     |
+|$H(x-0.25)$    |     40        |     0.075     |     0.713     |
+
+The interpolation of each function is plotted in below figure. Function (a) and (b) show that the approximation is being closer as p increases. Expecially, the Runge's pheonmenon can be covered as p is higher. However, in case of function (c), there is a discontinuity at $x=0.25$ and interpolation error seems to be still high at this point.
+
 <div>
     <p float = 'left'>
         <img src="./p1_1.png"  width="100%">
@@ -17,13 +28,51 @@ Problem: Implement a method using Lagrange polynomial interpolation of degree pu
 </div>
 
 ### Problem 1.2
+For each function, the L2 error and max error are computed with different p and the result is represented in below figure. Note that the linear fitting for approximating the power law dependency of the error with respect to the interpolation degree p is applied for each function. Since the L2 error between given $f(x)$ and approximation $g(x)$ with equadistance points is proportional to $\frac{1}{(n+1)!}f^{(n+1)}(x)(x-x_0)...(x-x_n)$, we can expect that the L2 error and max error with Chebyshev node points also follow the similar relation. However, it is not exactly proportional to $\frac{1}{p+1}$ since the Chebyshev node points are not the equadistance points. Below figure shows the log-log scale of the errors with respect to interpolation degree $p$. For each function, the linear coefficients obtained from linear fitting indicates the power degree of $p$ corressponding to L2 and max error.
+
 <div>
     <p float = 'left'>
         <img src="./p1_2.png"  width="100%">
     </p>
 </div>
 
+Function (b) shows that the error is almost proportional to $p^{-1}$, whereas function (a) and function (c) do not show the same tendency. In case of function (c), we can guess that the discontinuity at $x = 0.25$ results in Runge's phenomenon at that position and different tendency. 
+
 ### Problem 1.Bonus
+For computing higher p, the code for computing the polynomials based on Chebyshev node points is modified. Using the property of Chebyshev polynomial, the Lagrange polynomial with Chebyshev node points can be replaced as Chebyshev polynomial. The modified code is as below. 
+
+```
+    def generate_pth_cheb_polynomial(x:np.array, p:int):
+    
+    T = np.ones((p + 1, len(x)))
+    
+    if p==0:
+        return T
+    
+    T[1] = x
+
+    for n in range(1,p):
+        T[n+1] = 2 * x * T[n] - T[n-1]
+
+    return T
+
+    def generate_cheb_polynomial(x:np.array, y:np.array, p:int):
+
+        T = generate_pth_cheb_polynomial(x,p)
+        a = np.zeros(p+1)
+        a[0] = np.mean(y)
+        
+        for i in range(1,p+1):
+            a[i] = 2 / len(x) * np.sum(y * T[i])
+        
+        def interp(xn:np.array):
+            Tn = generate_pth_cheb_polynomial(xn, p)
+            r = np.sum(a.reshape(-1,1) * Tn, axis = 0, keepdims = False) 
+            return r
+        
+        return interp
+```
+
 <div>
     <p float = 'left'>
         <img src="./p1_bonus_1.png"  width="100%">
@@ -36,20 +85,12 @@ Problem: Implement a method using Lagrange polynomial interpolation of degree pu
     </p>
 </div>
 
+We can observe the similar results compared to Problem 1.2, while the power law dependency observed in above figure is slight different from the previous one.
+
 ## Problem 2. Integration
-Problem: Write a numerical integration function that takes the following arguments: a function f(x), a number of discrete intervals N, and the integration bounds aand b. The function must return the value of integral f(x) from a to b. The integrator should use 5-point Gaussian Quadrature method in each of the N intervals. 
-
-Plot the relative error of integration as a function of h= (b−a)/N for
-(a) a=−1,b= 1,f(x) = x8
-(b) a=−1,b= 1,f(x) = |x−1/√2|^3
-(c) a=−1,b= 1,f(x) = H[x−1/√2]
-(d) a= 0,b= 1,f(x) = 1/√x.
-
-Determine the power law dependency of each error curve as a function of h(e.g. h^0.5, h^1, or h^2). Then, plot the corresponding power-law trend as a dashed line for reference. Write the explanations of the power law dependencies that you find for each function in the write-up.
-        
-(Optional) What do you think will happen if we split the integration domain for function (c) into [−1,1/√2] and [1/√2,1]? Can you explain the error scaling that you obtain by splitting the domain?
-
 ### Problem 2.1
+The 5-point Gaussian quadrature is applied for numerical integration.
+
 <div>
     <p float = 'left'>
         <img src="./p2.png"  width="100%">

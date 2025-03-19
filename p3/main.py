@@ -131,12 +131,12 @@ if __name__ == "__main__":
 
     axes[0].plot(x_iters, v1_fro_err_list, "r")
     axes[0].set_xlabel("Iteration")
-    axes[0].set_ylabel("$|T_2 v_m - \lambda_m v_m|_F$")
+    axes[0].set_ylabel("$|T_2 v_m - \\lambda_m v_m|_F$")
     axes[0].set_title(r"Jacobi iteration with eigenvector m = 1")
 
     axes[1].plot(x_iters, v2_fro_err_list, "r")
     axes[1].set_xlabel("Iteration")
-    axes[1].set_ylabel("$|T_2 v_m - \lambda_m v_m|_F$")
+    axes[1].set_ylabel("$|T_2 v_m - \\lambda_m v_m|_F$")
     axes[1].set_title(r"Jacobi iteration with eigenvector m = 2")
 
     fig.tight_layout()
@@ -149,7 +149,7 @@ if __name__ == "__main__":
     y_fro_err_list = []
 
     for i in range(N):
-        a[i] = np.random.rand(1)
+        a[i] = np.random.rand()
         y += np.imag(generate_eigen_vec(m=i, N=N)) * a[i]
 
     # Use Jacobi iteration to solve Tx = y
