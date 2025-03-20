@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
     # Parameters
     p = 5
-    N_list = [2 * i for i in range(5,18)]
+    N_list = [10 * i for i in range(1, 10)]
 
     # Exact values for function integral with prob (a) to (d)
     F_a = int_func_prob_a(-1,1)
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     h_c_split = []
     err_c_split = []
 
-    N_list = [2 ** i for i in range(1, 10)]
+    N_list = [5 * i for i in range(1, 10)]
 
     for N in N_list:
         F_c_quad_p1 = 0
@@ -241,6 +241,7 @@ if __name__ == "__main__":
     ax.plot(h_c_split, err_c_split, 'r', label = "Error w/ split")
     ax.plot(h_c, err_c, "b", label="Error w/o split")
     ax.plot(h_c_split, line_err_c_split, "k--", label=r"$h^{{{:.3f}}}$".format(p_err_c_split[0]))
+    ax.plot(h_c, line_err_c, "c--", label=r"$h^{{{:.3f}}}$".format(p_err_c[0]))
     ax.set_xlabel("h")
     ax.set_ylabel("Relative error")
     ax.set_xlim([h_c.min(), h_c.max()])

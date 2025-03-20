@@ -3,6 +3,11 @@
 - Github repository for assignment 2 in APC523 is here: <a href = "https://github.com/ZINZINBIN/APC523PS2">https://github.com/ZINZINBIN/APC523PS2</a>
 - Problem 3 is noted by both handwriting and code. The handwriting file is uploaded as "HW_02_prob_3_abc.pdf", and it contains 3-(a), 3-(b), and 3-(c).
 
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({ tex2jax: {inlineMath: [['$', '$']]}, messageStyle: "none" });
+</script>
+
 ## Problem 1. Polynomial Interpolation
 ### Problem 1.1
 The chebyshev node points are generated for each function from (a) to (c) with different p mentioned in problem 1. The code is written at main.py in p1 folder. The interpolation error computed by L2 and max error is given as table below.
@@ -88,8 +93,7 @@ For computing higher p, the code for computing the polynomials based on Chebyshe
 We can observe the similar results compared to Problem 1.2, while the power law dependency observed in above figure is slight different from the previous one.
 
 ## Problem 2. Integration
-### Problem 2.1
-The 5-point Gaussian quadrature is applied for numerical integration.
+The 5-point Gaussian quadrature is applied for numerical integration. Similar to problem 1, linear fitting is again applied to see the power law dependency between the relative error and interval spacing $h$. It seems that the relative errors are approximately proportional to $h$ for all cases.
 
 <div>
     <p float = 'left'>
@@ -104,9 +108,21 @@ The 5-point Gaussian quadrature is applied for numerical integration.
     </p>
 </div>
 
-### Problem 3. Iterative Methods
+## Problem 3. Iterative Methods
+Problem (a),(b),and (c) are represented in "HW_02_prob_3_abc.pdf". In case of problem (d), the error of the k-th iteration for $v_1$ and $v_2$ si given below.
+
 <div>
     <p float = 'left'>
         <img src="./p3.png"  width="100%">
     </p>
 </div>
+
+We can use linear fitting for approximating the spectral radius from $log(\epsilon) / log(\rho) \sim n$. For m = 1, $\rho_1 \sim 0.99803$ and for m = 2, $\rho_2 \sim 0.9986$. While the previous problems derive that the spectral radius $rho=\frac{2}{\alpha}$, thus the convergence is not guaranteed when $\alpha = 2$. The numerical estimation shows that the spectral radius for $v_1$ and $v_2$ is close to 1 so that the error doesn't converge to zero. In more detail, we can observe the decrese of error due to the fact that the spectral radius obtained numerically is slightly less than 1, therefore there would be a decay of the value, but still it doesn't completely converge to zero. We can check this by computing $|T_2 v_m - \lambda v_m|_F$, which is given as below figure.
+
+<div>
+    <p float = 'left'>
+        <img src="./p3_fro.png"  width="100%">
+    </p>
+</div>
+
+As the figure shows, the iteration doesn't converge to zero. For any arbitrary given vector $y = \sum_i y_i v_i$, we can expect that the convergence rate, or the spectral radius can be given as $\rho = \max_m \rho_m$, where $\rho_m$ is the spectral radius for $v_m$ following the above process. 
